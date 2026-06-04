@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Chem_Vision AR</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: #eee;
+               font-family: system-ui, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; display: flex; align-items: center;
+           justify-content: center; }
+  #view { max-width: 100vw; max-height: 100vh; }
+  #banner { position: fixed; top: 0; left: 0; right: 0; padding: 10px 14px;
+            background: rgba(20,20,20,.85); display: none; }
+  #banner .eq { font-size: 22px; color: #4dff88; font-weight: 600; }
+  #banner .nm { font-size: 13px; color: #ccc; margin-top: 2px; }
+  #status { position: fixed; bottom: 8px; left: 10px; font-size: 12px;
+            color: #9f9; background: rgba(0,0,0,.5); padding: 3px 7px; border-radius: 4px; }
+  #start { position: fixed; inset: 0; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; gap: 16px; background: #000; z-index: 5; }
+  #start h1 { color: #4dff88; margin: 0; }
+  #start p { max-width: 320px; text-align: center; color: #bbb; }
+  #start button { font-size: 18px; padding: 14px 28px; border: 0; border-radius: 10px;
+                  background: #4dff88; color: #003; font-weight: 700; }
+  #err { color: #ff8080; max-width: 320px; text-align: center; }
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="view"></canvas></div>
+  <div id="banner"><div class="eq"></div><div class="nm"></div></div>
+  <div id="status">starting…</div>
+
+  <div id="start">
+    <h1>Chem_Vision AR</h1>
+    <p>Point the camera at a handwritten formula. Bring two formulas close together
+       to see the reaction.</p>
+    <button id="go">Start camera</button>
+    <div id="err"></div>
+  </div>
+
+<script>
+const video = document.createElement('video');
+video.playsInline = true; video.muted = true; video.autoplay = true;
+
+const canvas = document.getElementById('view');
+const ctx = canvas.getContext('2d');
+const banner = document.getElementById('banner');
+const statusEl = document.getElementById('status');
+
+let sw = 480, sh = 640;            // processing resolution (set from the camera)
+let latest = { tracks: [], reaction: null };
+let running = false, lastMs = 0, fps = 0, modelOk = false;
+
+const off = document.createElement('canvas');   // offscreen frame grabber
+const offCtx = off.getContext('2d');
+
+async function start() {
+  document.getElementById('err').textContent = '';
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } }, audio: false });
+    video.srcObject = stream;
+    await video.play();
+  } catch (e) {
+    document.getElementById('err').textContent =
+      'Camera error: ' + e.message + '. Make sure you opened this over HTTPS and allowed camera access.';
+    return;
+  }
+  // pick a processing size ~640 on the long edge, preserving aspect
+  const vw = video.videoWidth || 480, vh = video.videoHeight || 640;
+  const scale = 640 / Math.max(vw, vh);
+  sw = Math.round(vw * scale); sh = Math.round(vh * scale);
+  canvas.width = sw; canvas.height = sh; off.width = sw; off.height = sh;
+
+  try { const h = await (await fetch('/health')).json(); modelOk = h.recognizer_available; } catch {}
+
+  document.getElementById('start').style.display = 'none';
+  running = true;
+  requestAnimationFrame(render);   // smooth video + overlay
+  pump();                          // send frames to the server as fast as it answers
+}
+
+function render() {
+  if (!running) return;
+  ctx.drawImage(video, 0, 0, sw, sh);
+  ctx.lineWidth = Math.max(2, sw / 240);
+  ctx.font = `${Math.round(sw/26)}px sans-serif`;
+  for (const t of latest.tracks) {
+    const ok = t.confirmed;
+    ctx.strokeStyle = ok ? '#00e000' : '#d0d000';
+    ctx.strokeRect(t.x, t.y, t.w, t.h);
+    const text = ok ? `${t.label}  ${Math.round(t.confidence*100)}%` : 'reading…';
+    const pad = 4, fy = Math.max(16, t.y - 6);
+    const tw = ctx.measureText(text).width;
+    ctx.fillStyle = 'rgba(0,0,0,.6)';
+    ctx.fillRect(t.x, fy - Math.round(sw/26), tw + 2*pad, Math.round(sw/26) + 6);
+    ctx.fillStyle = ok ? '#5dff5d' : '#ffff66';
+    ctx.fillText(text, t.x + pad, fy);
+  }
+  const r = latest.reaction;
+  if (r) {
+    banner.style.display = 'block';
+    banner.querySelector('.eq').textContent = r.equation;
+    banner.querySelector('.nm').textContent = r.name || '';
+  } else {
+    banner.style.display = 'none';
+  }
+  statusEl.textContent = `${modelOk ? 'model:OK' : 'model:off'} · ${fps.toFixed(1)} fps`;
+  requestAnimationFrame(render);
+}
+
+async function pump() {
+  while (running) {
+    try {
+      offCtx.drawImage(video, 0, 0, sw, sh);
+      const blob = await new Promise(res => off.toBlob(res, 'image/jpeg', 0.6));
+      const fd = new FormData();
+      fd.append('image', blob, 'f.jpg');
+      const resp = await fetch('/frame', { method: 'POST', body: fd });
+      if (resp.ok) latest = await resp.json();
+      const now = performance.now();
+      if (lastMs) fps = 0.7*fps + 0.3*(1000/(now-lastMs));
+      lastMs = now;
+    } catch (e) {
+      statusEl.textContent = 'network error…';
+      await new Promise(r => setTimeout(r, 500));
+    }
+    await new Promise(r => setTimeout(r, 60));   // small breather
+  }
+}
+
+document.getElementById('go').addEventListener('click', start);
+</script>
+</body>
+</html>

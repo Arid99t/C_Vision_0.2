@@ -1,0 +1,3 @@
+# ML extras: needed to TRAIN and RUN the handwriting recognition model.
+# For GPU builds, install the matching CUDA wheel from https://pytorch.org instead.
+torch>=2.1

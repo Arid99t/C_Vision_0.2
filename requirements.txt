@@ -1,0 +1,4 @@
+# Everything (backend + ML + desktop client).
+-r requirements-core.txt
+-r requirements-ml.txt
+-r requirements-desktop.txt

@@ -1,0 +1,10 @@
+# Core: chemistry engine + HTTP API. With just these, every endpoint works
+# EXCEPT /recognize (which needs the ML extras below).
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+pydantic>=2.0
+chempy>=0.8
+numpy>=1.24
+pillow>=10.0
+requests>=2.31

@@ -1,0 +1,3 @@
+Drop handwriting-style .ttf fonts here to improve synthetic training data.
+Good free options: "Caveat", "Patrick Hand", "Shadows Into Light" (Google Fonts).
+The data generator auto-discovers any .ttf in this folder.

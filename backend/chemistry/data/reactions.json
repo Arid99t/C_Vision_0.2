@@ -1,0 +1,90 @@
+{
+  "_comment": "Curated reaction knowledge base. Keyed by the SET of reactant formulas (order-independent). Products are species only; coefficients are computed by the balancer. Add entries here to teach the app new reactions.",
+  "reactions": [
+    {
+      "reactants": ["CH4", "H2O"],
+      "products": ["CO", "H2"],
+      "name": "Steam reforming of methane",
+      "conditions": "700–1100 °C, Ni catalyst",
+      "note": "Industrial route to syngas / hydrogen."
+    },
+    {
+      "reactants": ["H2", "O2"],
+      "products": ["H2O"],
+      "name": "Synthesis of water (hydrogen combustion)",
+      "conditions": "spark / ignition"
+    },
+    {
+      "reactants": ["N2", "H2"],
+      "products": ["NH3"],
+      "name": "Haber process (ammonia synthesis)",
+      "conditions": "~450 °C, 200 atm, Fe catalyst"
+    },
+    {
+      "reactants": ["Na", "Cl2"],
+      "products": ["NaCl"],
+      "name": "Formation of sodium chloride"
+    },
+    {
+      "reactants": ["HCl", "NaOH"],
+      "products": ["NaCl", "H2O"],
+      "name": "Neutralization (strong acid + strong base)"
+    },
+    {
+      "reactants": ["H2SO4", "NaOH"],
+      "products": ["Na2SO4", "H2O"],
+      "name": "Neutralization (sulfuric acid + sodium hydroxide)"
+    },
+    {
+      "reactants": ["CaCO3"],
+      "products": ["CaO", "CO2"],
+      "name": "Thermal decomposition of calcium carbonate",
+      "conditions": "heat (~840 °C)"
+    },
+    {
+      "reactants": ["C", "O2"],
+      "products": ["CO2"],
+      "name": "Combustion of carbon"
+    },
+    {
+      "reactants": ["CH4", "O2"],
+      "products": ["CO2", "H2O"],
+      "name": "Combustion of methane"
+    },
+    {
+      "reactants": ["Fe", "O2"],
+      "products": ["Fe2O3"],
+      "name": "Oxidation of iron (rusting)"
+    },
+    {
+      "reactants": ["Zn", "HCl"],
+      "products": ["ZnCl2", "H2"],
+      "name": "Metal + acid (single displacement)"
+    },
+    {
+      "reactants": ["Mg", "O2"],
+      "products": ["MgO"],
+      "name": "Combustion of magnesium"
+    },
+    {
+      "reactants": ["CO2", "H2O"],
+      "products": ["H2CO3"],
+      "name": "Formation of carbonic acid"
+    },
+    {
+      "reactants": ["NH3", "HCl"],
+      "products": ["NH4Cl"],
+      "name": "Formation of ammonium chloride"
+    },
+    {
+      "reactants": ["CaO", "H2O"],
+      "products": ["Ca(OH)2"],
+      "name": "Slaking of lime"
+    },
+    {
+      "reactants": ["C2H5OH", "O2"],
+      "products": ["CO2", "H2O"],
+      "name": "Combustion of ethanol"
+    }
+  ]
+}

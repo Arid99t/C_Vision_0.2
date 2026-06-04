@@ -1,0 +1,3 @@
+# Desktop AR client extras (webcam capture + overlay). numpy/requests/pillow
+# come from requirements-core.txt.
+opencv-python>=4.8

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Trained weights & generated data (large / reproducible)
+backend/recognition/weights/*.pt
+backend/recognition/fonts/*
+!backend/recognition/fonts/.gitkeep
+synth_preview/
+data/real/
+
+.claude
+
+# Scratch
+_*.png
+_*.log
+training.log
+.DS_Store
