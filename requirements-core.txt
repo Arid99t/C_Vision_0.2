@@ -1,5 +1,6 @@
-# Core: chemistry engine + HTTP API. With just these, every endpoint works
-# EXCEPT /recognize (which needs the ML extras below).
+# Core: chemistry engine + HTTP API + serving the phone web app.
+# With just these, every endpoint works. /recognize (server-side reading) runs
+# the exported model through onnxruntime; PyTorch is NOT needed to serve.
 fastapi>=0.110
 uvicorn[standard]>=0.27
 python-multipart>=0.0.9
@@ -8,3 +9,5 @@ chempy>=0.8
 numpy>=1.24
 pillow>=10.0
 requests>=2.31
+onnxruntime>=1.17
+opencv-python>=4.8       # /frame fallback shares the desktop detector

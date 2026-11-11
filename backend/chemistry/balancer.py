@@ -11,8 +11,10 @@ from typing import Optional
 
 from chempy import balance_stoichiometry
 
-from .formula import normalize_ocr, to_subscripts
+from .formula import normalize_ocr, parse_formula, to_subscripts
+from .geometry import molecule_geometry
 from .reactions import find_reaction
+from .thermochemistry import describe_heat
 
 
 def _coerce(species) -> dict:
@@ -32,11 +34,18 @@ def balance(reactants: list[str], products: list[str]) -> tuple[dict, dict]:
     Raises ValueError if the system cannot be balanced (chempy raises its own
     exceptions, which we normalize to ValueError for the API layer).
     """
+    if not reactants or not products:
+        raise ValueError("Both sides must contain at least one formula.")
+    if any(parse_formula(f) is None for f in [*reactants, *products]):
+        raise ValueError("Invalid or oversized chemical formula.")
     try:
         reac, prod = balance_stoichiometry(set(reactants), set(products))
+        reac, prod = _coerce(reac), _coerce(prod)
+        if any(c <= 0 for c in [*reac.values(), *prod.values()]):
+            raise ValueError("Every species must have a positive coefficient.")
     except Exception as exc:  # chempy raises ValueError / linsolve failures
         raise ValueError(str(exc)) from exc
-    return _coerce(reac), _coerce(prod)
+    return reac, prod
 
 
 def _format_side(species: dict) -> str:
@@ -79,6 +88,10 @@ def react(reactants: list[str]) -> dict:
             "products": info["products"],
         }
 
+    # 3D geometry for every species on both sides, for the AR clients' atom
+    # visualization + reactants-merge-into-products animation.
+    geometry = {f: molecule_geometry(f) for f in list(reac) + list(prod)}
+
     return {
         "ok": True,
         "equation": format_equation(reac, prod),
@@ -87,5 +100,10 @@ def react(reactants: list[str]) -> dict:
         "name": info.get("name"),
         "conditions": info.get("conditions"),
         "note": info.get("note"),
+        # approximate standard enthalpy change in kJ for the equation as
+        # balanced here (negative = releases heat); None when not recorded
+        "dH": info.get("dH"),
+        "thermochemistry": describe_heat(reac, prod, info.get("dH")),
         "source": info.get("source"),
+        "geometry": geometry,
     }

@@ -189,7 +189,7 @@ class Track:
     formula: Optional[str] = None      # confirmed label (None until stable)
     pretty: Optional[str] = None
     confidence: float = 0.0
-    reads: list = field(default_factory=list)  # recent raw reads, for stability
+    reads: list = field(default_factory=list)  # recent (formula, conf, pretty) votes
     last_seen: int = 0
     last_recognized: int = -999
     misses: int = 0
@@ -362,13 +362,22 @@ class ARApp:
         # reject low-confidence or chemically-invalid reads outright
         if not formula or conf < self.cfg.min_confidence or not valid or len(formula) < 2:
             return
-        # stability gate: only confirm after N identical consecutive reads
-        tr.reads.append(formula)
-        tr.reads = tr.reads[-self.cfg.stable_reads:]
-        if len(tr.reads) >= self.cfg.stable_reads and len(set(tr.reads)) == 1:
-            tr.formula = formula
-            tr.pretty = (res.get("describe") or {}).get("pretty") or formula
-            tr.confidence = conf
+        # stability gate: majority vote over a sliding window of recent reads.
+        # Confirmation still needs `stable_reads` agreeing reads, but unlike
+        # requiring N *identical consecutive* reads, one flickered misread no
+        # longer resets progress — it's simply outvoted.
+        pretty = (res.get("describe") or {}).get("pretty") or formula
+        tr.reads.append((formula, conf, pretty))
+        tr.reads = tr.reads[-(2 * self.cfg.stable_reads - 1):]
+        votes: dict[str, list] = {}
+        for f, c, p in tr.reads:
+            votes.setdefault(f, []).append((c, p))
+        winner, wvotes = max(votes.items(),
+                             key=lambda kv: (len(kv[1]), sum(c for c, _ in kv[1])))
+        if len(wvotes) >= self.cfg.stable_reads:
+            tr.formula = winner
+            tr.pretty = wvotes[-1][1]
+            tr.confidence = sum(c for c, _ in wvotes) / len(wvotes)
 
     def _check_proximity(self, tracks):
         labeled = [t for t in tracks if t.formula]

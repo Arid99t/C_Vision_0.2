@@ -1,0 +1,37 @@
+Chem_Vision dependency and asset notices
+
+The project owner has not selected a licence for the original application code.
+This file records dependencies; it does not relicense the application or grant
+rights to third-party material.
+
+Three.js r160 (backend/static/vendor/three.module.js)
+  Copyright 2010-2023 Three.js Authors; MIT.
+  https://github.com/mrdoob/three.js/tree/r160
+  Full licence: backend/static/vendor/three.LICENSE.txt
+
+ONNX Runtime Web 1.31.1 (downloaded by tools/fetch_web_runtime.py)
+  Microsoft Corporation; MIT.
+  https://github.com/microsoft/onnxruntime
+  Full licence: backend/static/vendor/ort.LICENSE.txt
+
+Optional YOLOE / Ultralytics object models
+  AGPL-3.0 or a separate Ultralytics Enterprise licence.
+  https://docs.ultralytics.com/
+  https://github.com/ultralytics/ultralytics/blob/main/LICENSE
+  Model binaries are generated locally and excluded from Git. Exclusion from
+  Git does not remove licence obligations when using or distributing them.
+  Review the upstream terms before publishing an application incorporating them.
+
+Formula recognizer training inputs
+  EMNIST: https://www.nist.gov/itl/products-and-services/emnist-dataset
+  Google Fonts: fonts carry their own licences; retain those when sharing fonts.
+  Training inputs are not included in this repository. A release of the trained
+  weights should retain their training provenance and review the input licences.
+
+Thermochemistry references
+  NIST Chemistry WebBook / NIST-JANAF: source links, phase assumptions and the
+  checked subset are recorded in backend/chemistry/data/thermochemistry.json.
+  Other heat estimates are explicitly unverified.
+
+Python packages retain their upstream licences, available in their installed
+distributions. No ownership of third-party code, data or models is claimed.

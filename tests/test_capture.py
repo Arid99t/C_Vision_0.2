@@ -12,10 +12,10 @@ try:
     import numpy as np
 except ImportError:
     print("SKIP: opencv/numpy not installed")
-    sys.exit(0)
+    from tests.webharness import skip_unavailable
+    skip_unavailable("Optional dependency or generated asset unavailable; see message above")
 
 from clients.desktop import capture            # noqa: E402
-from backend.recognition.dataset import FolderDataset  # noqa: E402
 
 
 def _frame(text):
@@ -24,7 +24,11 @@ def _frame(text):
     return img
 
 
-def run():
+def test_capture_roundtrip():
+    if __name__ != "__main__":
+        import pytest
+        pytest.importorskip("torch", reason="Training dataset test requires requirements-ml.txt")
+    from backend.recognition.dataset import FolderDataset
     with tempfile.TemporaryDirectory() as tmp:
         img_dir = os.path.join(tmp, "images")
         labels = os.path.join(tmp, "labels.tsv")
@@ -56,4 +60,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    test_capture_roundtrip()

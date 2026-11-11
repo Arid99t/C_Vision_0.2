@@ -1,4 +1,12 @@
-"""Handwritten-chemistry recognition: CRNN + CTC model, synthetic data, training, inference."""
+"""Handwritten-chemistry recognition.
+
+  model.py        MobileRec (phone-sized) and the original CRNN, both CTC
+  synthv2.py      camera-realistic training data (handwritten glyphs + fonts)
+  preprocess.py   crop clean-up; prepare_crop is mirrored in static/js/preprocess.js
+  decode.py       chemistry-constrained beam search (mirrored in static/js/decode.js)
+  train.py        training; export.py -> ONNX for the server and the phone
+  infer.py        inference wrapper (onnxruntime or PyTorch)
+"""
 import os
 
 # Anaconda ships Intel MKL's libiomp5md.dll and PyTorch bundles its own copy.

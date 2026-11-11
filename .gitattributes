@@ -1,0 +1,2 @@
+# Keep third-party source intact and separate from authored code in GitHub stats.
+backend/static/vendor/** linguist-vendored -whitespace

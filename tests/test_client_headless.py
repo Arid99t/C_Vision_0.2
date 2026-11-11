@@ -19,7 +19,8 @@ try:
     import numpy as np
 except ImportError:
     print("SKIP: opencv-python/numpy not installed")
-    sys.exit(0)
+    from tests.webharness import skip_unavailable
+    skip_unavailable("Optional dependency or generated asset unavailable; see message above")
 
 from clients.desktop import ar_app  # noqa: E402
 from backend.chemistry import react as chem_react  # noqa: E402
@@ -45,7 +46,7 @@ def _frame_with(formulas):
     return img
 
 
-def run():
+def test_client_pipeline():
     cfg = ar_app.AppConfig(demo_labels=["CH4", "H2O"], proximity_px=70.0)
     app = ar_app.ARApp(cfg)          # health check fails gracefully (server down)
     app.client = StubClient()
@@ -82,4 +83,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    test_client_pipeline()

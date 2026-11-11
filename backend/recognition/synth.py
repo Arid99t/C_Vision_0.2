@@ -219,12 +219,21 @@ def to_fixed_height(img: Image.Image, height: int = IMG_HEIGHT) -> np.ndarray:
     return np.asarray(img, dtype=np.uint8)
 
 
-def make_sample(text: str | None = None) -> tuple[np.ndarray, str]:
-    """Generate one (image, label). Image is a fixed-height (H, W) uint8 array."""
+def make_sample(text: str | None = None, clean: bool = False) -> tuple[np.ndarray, str]:
+    """Generate one (image, label). Image is a fixed-height (H, W) uint8 array.
+
+    ``clean=True`` additionally runs the augmented image through the same crop
+    cleanup inference applies (preprocess.clean_crop) — use it for TRAINING so
+    the model sees the exact distribution it gets at prediction time. Leave it
+    False for evaluation, where the recognizer itself does the cleanup.
+    """
     if text is None:
         text = random_formula()
     size = random.randint(28, 48)
     img = _augment(_render(text, size))
+    if clean:
+        from . import preprocess  # local import: keeps module load light
+        img = preprocess.clean_crop(img)
     return to_fixed_height(img), text
 
 

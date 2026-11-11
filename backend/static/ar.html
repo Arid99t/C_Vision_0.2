@@ -2,135 +2,152 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
 <title>Chem_Vision AR</title>
 <style>
-  * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; background: #000; color: #eee;
-               font-family: system-ui, sans-serif; overflow: hidden; }
-  #stage { position: fixed; inset: 0; display: flex; align-items: center;
-           justify-content: center; }
-  #view { max-width: 100vw; max-height: 100vh; }
-  #banner { position: fixed; top: 0; left: 0; right: 0; padding: 10px 14px;
-            background: rgba(20,20,20,.85); display: none; }
-  #banner .eq { font-size: 22px; color: #4dff88; font-weight: 600; }
-  #banner .nm { font-size: 13px; color: #ccc; margin-top: 2px; }
-  #status { position: fixed; bottom: 8px; left: 10px; font-size: 12px;
-            color: #9f9; background: rgba(0,0,0,.5); padding: 3px 7px; border-radius: 4px; }
-  #start { position: fixed; inset: 0; display: flex; flex-direction: column;
-           align-items: center; justify-content: center; gap: 16px; background: #000; z-index: 5; }
-  #start h1 { color: #4dff88; margin: 0; }
-  #start p { max-width: 320px; text-align: center; color: #bbb; }
-  #start button { font-size: 18px; padding: 14px 28px; border: 0; border-radius: 10px;
-                  background: #4dff88; color: #003; font-weight: 700; }
-  #err { color: #ff8080; max-width: 320px; text-align: center; }
+  :root { --accent: #4dffa6; --ink: #eef3ff; --panel: rgba(8, 12, 22, .78); }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: #05070c; color: var(--ink);
+               font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+               overflow: hidden; overscroll-behavior: none; touch-action: manipulation; }
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+  #cam, #still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #still { display: none; }
+  #shade { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .5s;
+           background: radial-gradient(ellipse at center, rgba(3,6,14,.55) 0%, rgba(3,6,14,.82) 100%); }
+  #shade.on { opacity: 1; }
+  #hud, #gl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .lbl { position: absolute; left: 0; top: 0; white-space: nowrap; text-align: center; will-change: transform;
+         text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.8); line-height: 1.15; }
+  .lbl.mol b { display: block; font-size: 17px; font-weight: 700; color: #fff; }
+  .lbl.mol span { display: block; font-size: 11.5px; color: #cfe0ff; max-width: 46vw; overflow: hidden;
+                  text-overflow: ellipsis; }
+  .lbl.mol span.dim { color: #9aa7bd; font-style: italic; }
+  .lbl.rx { font-size: 15px; font-weight: 700; color: #fff; }
+
+  #banner { position: absolute; left: 0; right: 0; top: 0; padding: calc(8px + env(safe-area-inset-top)) 14px 10px;
+            background: linear-gradient(to bottom, rgba(5,8,16,.92), rgba(5,8,16,.62) 70%, rgba(5,8,16,0));
+            transform: translateY(-110%); transition: transform .35s ease; pointer-events: none; }
+  #banner.on { transform: none; }
+  #banner .eq { font-size: clamp(17px, 5.2vw, 26px); font-weight: 700; color: var(--accent); letter-spacing: .2px; }
+  #banner .nm { font-size: 13.5px; color: #dfe8fa; margin-top: 2px; }
+  #banner .meta { font-size: 12px; color: #a9b8d4; margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  #banner .meta .hot { color: #ffb36b; } #banner .meta .cold { color: #7cc6ff; }
+
+  #caption { position: absolute; left: 10px; right: 10px; bottom: calc(58px + env(safe-area-inset-bottom));
+             padding: 10px 12px 9px; border-radius: 14px; background: var(--panel);
+             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+             opacity: 0; pointer-events: none; transform: translateY(12px); transition: opacity .3s, transform .3s; }
+  #caption.on { opacity: 1; pointer-events: auto; transform: none; }
+  #caption .step { font-size: 12px; color: #9fb2d6; text-transform: uppercase; letter-spacing: .08em; }
+  #caption .txt { font-size: 15px; margin-top: 2px; min-height: 2.4em; }
+  #caption .bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.16); margin-top: 7px; overflow: hidden; }
+  #caption .bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  #caption .row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+  #caption .legend { flex: 1; font-size: 11px; color: #a9b8d4; display: flex; flex-wrap: wrap; gap: 3px 10px; }
+  #caption .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px;
+                       box-shadow: 0 0 6px currentColor; background: currentColor; }
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+  .pill { padding: 7px 13px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: 13px; font-weight: 600; }
+  .pill:active { background: rgba(255,255,255,.28); }
+
+  #bar { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; align-items: center;
+         padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+         background: linear-gradient(to top, rgba(5,8,16,.9), rgba(5,8,16,0)); }
+  #bar .tog { padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.10); font-size: 13px;
+              font-weight: 600; opacity: .62; }
+  #bar .tog.on { background: rgba(77,255,166,.2); color: var(--accent); opacity: 1; }
+  #status { margin-left: auto; font-size: 11px; color: #9fe8c0; text-align: right; line-height: 1.25;
+            font-variant-numeric: tabular-nums; }
+  @media (max-width: 480px) {
+    #bar { gap: 5px; flex-wrap: wrap; }
+    #bar .tog { padding: 8px 10px; }
+    #status { width: 100%; font-size: 10px; }
+    #caption, #sheet { bottom: calc(90px + env(safe-area-inset-bottom)); }
+  }
+  #hint { position: absolute; left: 50%; top: 22%; transform: translate(-50%, 0); padding: 7px 13px;
+          border-radius: 999px; background: var(--panel); font-size: 13px; opacity: 0; transition: opacity .3s;
+          pointer-events: none; white-space: nowrap; }
+  #hint.on { opacity: 1; }
+  #sheet { position: absolute; left: 10px; right: 10px; bottom: calc(58px + env(safe-area-inset-bottom));
+           padding: 12px 14px; border-radius: 14px; background: var(--panel); display: none;
+           backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  #sheet.on { display: block; }
+  #sheet h3 { margin: 0; font-size: 19px; } #sheet p { margin: 4px 0 0; font-size: 13px; color: #c6d3ea; }
+  #sheet .row { display: flex; gap: 8px; margin-top: 10px; }
+
+  #start { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+           justify-content: center; gap: 14px; padding: 24px; text-align: center; z-index: 5;
+           background: radial-gradient(circle at 50% 30%, #12233d 0%, #05070c 70%); }
+  #start h1 { margin: 0; font-size: 30px; color: var(--accent); letter-spacing: .5px; }
+  #start p { max-width: 330px; margin: 0; color: #b9c6dd; font-size: 15px; line-height: 1.45; }
+  #start ul { max-width: 330px; margin: 0; padding: 0 0 0 18px; text-align: left; color: #9fb0cc; font-size: 13.5px;
+              line-height: 1.5; }
+  #go { font-size: 18px; padding: 14px 30px; border-radius: 14px; background: var(--accent); color: #022;
+        font-weight: 800; }
+  #go:disabled { opacity: .5; }
+  #load { font-size: 12.5px; color: #8ea3c4; min-height: 1.2em; }
+  #err { color: #ff8f8f; max-width: 330px; font-size: 13.5px; }
 </style>
 </head>
 <body>
-  <div id="stage"><canvas id="view"></canvas></div>
-  <div id="banner"><div class="eq"></div><div class="nm"></div></div>
-  <div id="status">starting…</div>
+  <div id="stage">
+    <video id="cam" playsinline muted autoplay></video>
+    <img id="still" alt="">
+    <div id="shade"></div>
+    <canvas id="hud"></canvas>
+    <canvas id="gl"></canvas>
+    <div id="labels"></div>
+
+    <div id="banner"><div class="eq"></div><div class="nm"></div><div class="meta"></div></div>
+    <div id="hint"></div>
+
+    <div id="caption">
+      <div class="step"></div>
+      <div class="txt"></div>
+      <div class="bar"><i></i></div>
+      <div class="row">
+        <div class="legend">
+          <span style="color:#ffd84a"><i></i>shared (bonding) electrons</span>
+          <span style="color:#6fe3ff"><i></i>lone electrons</span>
+          <span style="color:#ff8ae2"><i></i>transferred electrons</span>
+        </div>
+        <button class="pill" id="replay">Replay</button>
+      </div>
+    </div>
+
+    <div id="sheet">
+      <h3></h3><p class="nm"></p><p class="more"></p>
+      <div class="row"><button class="pill" id="decompose">Break it down</button>
+        <button class="pill" id="closeSheet">Close</button></div>
+    </div>
+
+    <div id="bar">
+      <button class="tog on" id="tFormulas">Formulas</button>
+      <button class="tog" id="tObjects" hidden>Objects</button>
+      <button class="tog on" id="tElectrons">e⁻</button>
+      <button class="tog" id="pause">Pause</button>
+      <div id="status">starting…</div>
+    </div>
+  </div>
 
   <div id="start">
     <h1>Chem_Vision AR</h1>
-    <p>Point the camera at a handwritten formula. Bring two formulas close together
-       to see the reaction.</p>
-    <button id="go">Start camera</button>
+    <p>Point the camera at a handwritten chemical formula to see its molecule in 3D.
+       Bring two formulas close together to watch them react.</p>
+    <ul>
+      <li>Dark pen on light paper works best.</li>
+      <li id="privacy">Camera processing stays on this device.</li>
+      <li>The reaction view shows which bonds and electrons change, not a detailed mechanism.</li>
+    </ul>
+    <button id="go" disabled>Loading…</button>
+    <label id="fallback" hidden><input type="checkbox" id="serverFallback"> Use server recognition (send formula crops)</label>
+    <div id="load"></div>
     <div id="err"></div>
   </div>
 
-<script>
-const video = document.createElement('video');
-video.playsInline = true; video.muted = true; video.autoplay = true;
-
-const canvas = document.getElementById('view');
-const ctx = canvas.getContext('2d');
-const banner = document.getElementById('banner');
-const statusEl = document.getElementById('status');
-
-let sw = 480, sh = 640;            // processing resolution (set from the camera)
-let latest = { tracks: [], reaction: null };
-let running = false, lastMs = 0, fps = 0, modelOk = false;
-
-const off = document.createElement('canvas');   // offscreen frame grabber
-const offCtx = off.getContext('2d');
-
-async function start() {
-  document.getElementById('err').textContent = '';
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' } }, audio: false });
-    video.srcObject = stream;
-    await video.play();
-  } catch (e) {
-    document.getElementById('err').textContent =
-      'Camera error: ' + e.message + '. Make sure you opened this over HTTPS and allowed camera access.';
-    return;
-  }
-  // pick a processing size ~640 on the long edge, preserving aspect
-  const vw = video.videoWidth || 480, vh = video.videoHeight || 640;
-  const scale = 640 / Math.max(vw, vh);
-  sw = Math.round(vw * scale); sh = Math.round(vh * scale);
-  canvas.width = sw; canvas.height = sh; off.width = sw; off.height = sh;
-
-  try { const h = await (await fetch('/health')).json(); modelOk = h.recognizer_available; } catch {}
-
-  document.getElementById('start').style.display = 'none';
-  running = true;
-  requestAnimationFrame(render);   // smooth video + overlay
-  pump();                          // send frames to the server as fast as it answers
-}
-
-function render() {
-  if (!running) return;
-  ctx.drawImage(video, 0, 0, sw, sh);
-  ctx.lineWidth = Math.max(2, sw / 240);
-  ctx.font = `${Math.round(sw/26)}px sans-serif`;
-  for (const t of latest.tracks) {
-    const ok = t.confirmed;
-    ctx.strokeStyle = ok ? '#00e000' : '#d0d000';
-    ctx.strokeRect(t.x, t.y, t.w, t.h);
-    const text = ok ? `${t.label}  ${Math.round(t.confidence*100)}%` : 'reading…';
-    const pad = 4, fy = Math.max(16, t.y - 6);
-    const tw = ctx.measureText(text).width;
-    ctx.fillStyle = 'rgba(0,0,0,.6)';
-    ctx.fillRect(t.x, fy - Math.round(sw/26), tw + 2*pad, Math.round(sw/26) + 6);
-    ctx.fillStyle = ok ? '#5dff5d' : '#ffff66';
-    ctx.fillText(text, t.x + pad, fy);
-  }
-  const r = latest.reaction;
-  if (r) {
-    banner.style.display = 'block';
-    banner.querySelector('.eq').textContent = r.equation;
-    banner.querySelector('.nm').textContent = r.name || '';
-  } else {
-    banner.style.display = 'none';
-  }
-  statusEl.textContent = `${modelOk ? 'model:OK' : 'model:off'} · ${fps.toFixed(1)} fps`;
-  requestAnimationFrame(render);
-}
-
-async function pump() {
-  while (running) {
-    try {
-      offCtx.drawImage(video, 0, 0, sw, sh);
-      const blob = await new Promise(res => off.toBlob(res, 'image/jpeg', 0.6));
-      const fd = new FormData();
-      fd.append('image', blob, 'f.jpg');
-      const resp = await fetch('/frame', { method: 'POST', body: fd });
-      if (resp.ok) latest = await resp.json();
-      const now = performance.now();
-      if (lastMs) fps = 0.7*fps + 0.3*(1000/(now-lastMs));
-      lastMs = now;
-    } catch (e) {
-      statusEl.textContent = 'network error…';
-      await new Promise(r => setTimeout(r, 500));
-    }
-    await new Promise(r => setTimeout(r, 60));   // small breather
-  }
-}
-
-document.getElementById('go').addEventListener('click', start);
-</script>
+<script type="module" src="/static/js/app.js"></script>
 </body>
 </html>

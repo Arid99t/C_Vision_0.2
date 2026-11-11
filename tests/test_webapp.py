@@ -19,7 +19,8 @@ try:
     import numpy as np
 except ImportError:
     print("SKIP: opencv/numpy not installed")
-    sys.exit(0)
+    from tests.webharness import skip_unavailable
+    skip_unavailable("Optional dependency or generated asset unavailable; see message above")
 
 from fastapi.testclient import TestClient  # noqa: E402
 from backend.app import app  # noqa: E402

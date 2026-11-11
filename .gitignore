@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
+.venv-*/
+.pytest_cache/
 venv/
 .env
 
@@ -12,6 +14,17 @@ backend/recognition/fonts/*
 !backend/recognition/fonts/.gitkeep
 synth_preview/
 data/real/
+work/
+
+# Phone web app: files that are downloaded or rebuilt, not authored
+#   ONNX Runtime Web      python tools/fetch_web_runtime.py
+#   object model          python -m backend.objects.build      (AGPL-licensed weights)
+#   browser-test scenes   written by the tests
+# (The small formula model, backend/static/models/formula_rec.*, IS kept, so the
+#  app can read formulas straight after a clone.)
+backend/static/vendor/ort/
+backend/static/models/objects*
+backend/static/test/
 
 .claude
 

@@ -1,0 +1,246 @@
+{
+ "yoloe-26n": {
+  "table": {
+   "threshold": 0.47,
+   "precision": 0.9,
+   "recall": 0.208
+  },
+  "laptop": {
+   "threshold": 0.552,
+   "precision": 0.917,
+   "recall": 0.688
+  },
+  "mouse": {
+   "threshold": 0.3,
+   "precision": 0.913,
+   "recall": 0.656
+  },
+  "keyboard": {
+   "threshold": 0.365,
+   "precision": 0.92,
+   "recall": 0.411
+  },
+  "monitor": {
+   "threshold": 0.3,
+   "precision": 0.912,
+   "recall": 0.504
+  },
+  "toy": {
+   "threshold": 0.3,
+   "precision": 0.467,
+   "recall": 0.132
+  },
+  "plushie": {
+   "threshold": 0.484,
+   "precision": 0.903,
+   "recall": 0.326
+  },
+  "book": {
+   "threshold": 0.341,
+   "precision": 0.583,
+   "recall": 0.01
+  },
+  "card": {
+   "threshold": 0.3,
+   "precision": 0.105,
+   "recall": 0.4
+  },
+  "bottle": {
+   "threshold": 0.599,
+   "precision": 0.908,
+   "recall": 0.267
+  },
+  "cup": {
+   "threshold": 0.53,
+   "precision": 0.9,
+   "recall": 0.217
+  },
+  "fan": {
+   "threshold": 0.444,
+   "precision": 0.857,
+   "recall": 0.286
+  },
+  "light": {
+   "threshold": 0.848,
+   "precision": 0.875,
+   "recall": 0.024
+  },
+  "phone": {
+   "threshold": 0.356,
+   "precision": 1.0,
+   "recall": 0.059
+  },
+  "pen": {
+   "threshold": 0.698,
+   "precision": 1.0,
+   "recall": 0.056
+  },
+  "headphones": {
+   "threshold": 0.867,
+   "precision": 1.0,
+   "recall": 0.083
+  },
+  "chair": {
+   "threshold": 0.665,
+   "precision": 0.909,
+   "recall": 0.072
+  },
+  "bag": {
+   "threshold": 0.471,
+   "precision": 0.769,
+   "recall": 0.047
+  },
+  "clock": {
+   "threshold": 0.562,
+   "precision": 0.903,
+   "recall": 0.596
+  },
+  "remote": {
+   "threshold": 0.3,
+   "precision": 0.857,
+   "recall": 0.154
+  },
+  "speaker": {
+   "threshold": 0.697,
+   "precision": 0.833,
+   "recall": 0.132
+  },
+  "glasses": {
+   "threshold": 0.66,
+   "precision": 0.905,
+   "recall": 0.097
+  },
+  "scissors": {
+   "threshold": 0.3,
+   "precision": 0.833,
+   "recall": 0.25
+  },
+  "person": {
+   "threshold": 0.353,
+   "precision": 0.904,
+   "recall": 0.52
+  }
+ },
+ "yoloe-26s": {
+  "table": {
+   "threshold": 0.694,
+   "precision": 0.933,
+   "recall": 0.081
+  },
+  "laptop": {
+   "threshold": 0.3,
+   "precision": 0.915,
+   "recall": 0.896
+  },
+  "mouse": {
+   "threshold": 0.308,
+   "precision": 0.923,
+   "recall": 0.75
+  },
+  "keyboard": {
+   "threshold": 0.365,
+   "precision": 0.903,
+   "recall": 0.5
+  },
+  "monitor": {
+   "threshold": 0.3,
+   "precision": 0.909,
+   "recall": 0.65
+  },
+  "toy": {
+   "threshold": 0.3,
+   "precision": 0.385,
+   "recall": 0.094
+  },
+  "plushie": {
+   "threshold": 0.31,
+   "precision": 0.902,
+   "recall": 0.43
+  },
+  "book": {
+   "threshold": 0.631,
+   "precision": 0.833,
+   "recall": 0.007
+  },
+  "card": {
+   "threshold": 0.3,
+   "precision": 0.333,
+   "recall": 0.2
+  },
+  "bottle": {
+   "threshold": 0.766,
+   "precision": 0.908,
+   "recall": 0.229
+  },
+  "cup": {
+   "threshold": 0.673,
+   "precision": 0.902,
+   "recall": 0.266
+  },
+  "fan": {
+   "threshold": 0.508,
+   "precision": 0.818,
+   "recall": 0.429
+  },
+  "light": {
+   "threshold": 0.804,
+   "precision": 0.853,
+   "recall": 0.101
+  },
+  "phone": {
+   "threshold": 0.465,
+   "precision": 1.0,
+   "recall": 0.082
+  },
+  "pen": {
+   "threshold": 0.3,
+   "precision": 0.857,
+   "recall": 0.333
+  },
+  "headphones": {
+   "threshold": 0.87,
+   "precision": 1.0,
+   "recall": 0.083
+  },
+  "chair": {
+   "threshold": 0.709,
+   "precision": 0.905,
+   "recall": 0.091
+  },
+  "bag": {
+   "threshold": 0.418,
+   "precision": 0.912,
+   "recall": 0.147
+  },
+  "clock": {
+   "threshold": 0.773,
+   "precision": 0.9,
+   "recall": 0.383
+  },
+  "remote": {
+   "threshold": 0.3,
+   "precision": 0.929,
+   "recall": 0.333
+  },
+  "speaker": {
+   "threshold": 0.779,
+   "precision": 0.889,
+   "recall": 0.211
+  },
+  "glasses": {
+   "threshold": 0.508,
+   "precision": 0.909,
+   "recall": 0.255
+  },
+  "scissors": {
+   "threshold": 0.329,
+   "precision": 1.0,
+   "recall": 0.3
+  },
+  "person": {
+   "threshold": 0.3,
+   "precision": 0.904,
+   "recall": 0.667
+  }
+ }
+}

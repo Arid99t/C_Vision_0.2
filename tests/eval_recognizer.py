@@ -1,7 +1,10 @@
 """Evaluate the trained recognizer on fresh synthetic samples it has never seen.
-Run: python tests/eval_recognizer.py [N]
+Run: python tests/eval_recognizer.py [N] [SEED]
+
+Pass the same SEED to compare two recognizer versions on identical samples.
 """
 import os
+import random
 import sys
 
 try:
@@ -15,7 +18,11 @@ from backend.recognition.infer import recognizer_available, get_recognizer  # no
 from backend.chemistry import normalize_ocr          # noqa: E402
 
 
-def main(n=200):
+def main(n=200, seed=None):
+    if seed is not None:
+        import numpy as np
+        random.seed(seed)
+        np.random.seed(seed)
     if not recognizer_available():
         print("No trained model found. Train first: python -m backend.recognition.train")
         return 1
@@ -49,4 +56,5 @@ def main(n=200):
 
 
 if __name__ == "__main__":
-    sys.exit(main(int(sys.argv[1]) if len(sys.argv) > 1 else 200))
+    sys.exit(main(int(sys.argv[1]) if len(sys.argv) > 1 else 200,
+                  int(sys.argv[2]) if len(sys.argv) > 2 else None))

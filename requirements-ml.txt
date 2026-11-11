@@ -1,3 +1,7 @@
-# ML extras: needed to TRAIN and RUN the handwriting recognition model.
+# ML extras: needed to TRAIN and EXPORT the handwriting recognition model.
+# (Running it only needs onnxruntime, see requirements-core.txt.)
 # For GPU builds, install the matching CUDA wheel from https://pytorch.org instead.
 torch>=2.1
+onnx>=1.15
+opencv-python>=4.8      # the training-data generator (synthv2.py)
+scipy>=1.10

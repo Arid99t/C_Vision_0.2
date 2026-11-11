@@ -12,7 +12,8 @@ try:
     import numpy as np
 except ImportError:
     print("SKIP: opencv/numpy not installed")
-    sys.exit(0)
+    from tests.webharness import skip_unavailable
+    skip_unavailable("Optional dependency or generated asset unavailable; see message above")
 
 from clients.desktop import ar_app  # noqa: E402
 
@@ -30,7 +31,7 @@ def make_scene():
     return bg
 
 
-def run():
+def test_detector_rejects_backgrounds():
     scene = make_scene()
     boxes, mask = ar_app.detect_formula_regions(scene, return_mask=True)
     print(f"detected {len(boxes)} box(es): {boxes}")
@@ -64,4 +65,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    test_detector_rejects_backgrounds()

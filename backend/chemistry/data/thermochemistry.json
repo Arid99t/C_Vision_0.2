@@ -1,0 +1,32 @@
+{
+  "checked_on": "2026-11-11",
+  "temperature_K": 298.15,
+  "method": "Sum of product formation enthalpies minus reactant formation enthalpies, multiplied by the smallest whole-number stoichiometric coefficients. Standard-state values, not heat at the process temperature.",
+  "sources": {
+    "methane": "https://janaf.nist.gov/tables/C-067.html",
+    "water": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185&Mask=FFFFFFFF",
+    "carbon_dioxide": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C124389&Mask=1&Units=SI",
+    "carbon_monoxide": "https://webbook.nist.gov/cgi/cbook.cgi?Mask=2061&Source=1972JOH576&Units=SI"
+  },
+  "formation_kJ_mol": {
+    "CH4(g)": -74.873,
+    "H2O(l)": -285.830,
+    "H2O(g)": -241.826,
+    "CO2(g)": -393.51,
+    "CO(g)": -110.53,
+    "C(graphite)": 0,
+    "H2(g)": 0,
+    "O2(g)": 0
+  },
+  "reactions": {
+    "CH4|H2O": {"phases": {"CH4": "g", "H2O": "g", "CO": "g", "H2": "g"}, "sources": ["methane", "water", "carbon_monoxide"]},
+    "CH4|O2": {"phases": {"CH4": "g", "O2": "g", "CO2": "g", "H2O": "l"}, "sources": ["methane", "water", "carbon_dioxide"]},
+    "H2|O2": {"phases": {"H2": "g", "O2": "g", "H2O": "l"}, "sources": ["water"]},
+    "H2O": {"phases": {"H2O": "l", "H2": "g", "O2": "g"}, "sources": ["water"]},
+    "C|O2": {"phases": {"C": "graphite", "O2": "g", "CO2": "g"}, "sources": ["carbon_dioxide"]},
+    "CO|O2": {"phases": {"CO": "g", "O2": "g", "CO2": "g"}, "sources": ["carbon_monoxide", "carbon_dioxide"]},
+    "C|CO2": {"phases": {"C": "graphite", "CO2": "g", "CO": "g"}, "sources": ["carbon_monoxide", "carbon_dioxide"]},
+    "CO|H2O": {"phases": {"CO": "g", "H2O": "g", "CO2": "g", "H2": "g"}, "sources": ["water", "carbon_monoxide", "carbon_dioxide"]},
+    "C|H2O": {"phases": {"C": "graphite", "H2O": "g", "CO": "g", "H2": "g"}, "sources": ["water", "carbon_monoxide"]}
+  }
+}

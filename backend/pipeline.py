@@ -1,10 +1,12 @@
-"""Server-side frame processing for the mobile web client.
+"""Server-side frame processing (POST /frame).
 
-The phone can't run the model, so it streams camera frames here. We reuse the
-exact same AR pipeline the desktop client uses (detection -> tracking ->
-recognition -> stability -> proximity -> reaction) but with recognition and
-chemistry called *in process* instead of over HTTP. A frame goes in; structured
-boxes + the balanced reaction come out as plain data the browser overlays.
+The phone web app (/ar) now runs this whole pipeline on the device, so it no
+longer streams frames here. This endpoint remains as a fallback for clients
+that cannot run the models themselves. It reuses the exact AR pipeline the
+desktop client uses (detection -> tracking -> recognition -> stability ->
+proximity -> reaction) but with recognition and chemistry called *in process*
+instead of over HTTP. A frame goes in; structured boxes + the balanced reaction
+come out as plain data the client overlays.
 
 Reusing the desktop client's vision logic keeps behavior identical across
 desktop and mobile. (The client module only depends on cv2/numpy/requests.)
@@ -17,7 +19,7 @@ import cv2
 import numpy as np
 
 from clients.desktop.ar_app import ARApp, AppConfig, Tracker, to_ascii
-from backend.chemistry import describe_formula, normalize_ocr
+from backend.chemistry import describe_formula, molecule_geometry, normalize_ocr
 from backend.chemistry import react as chem_react
 from backend.recognition import infer
 
@@ -32,13 +34,19 @@ class _InProcessClient:
     def recognize(self, crop_bgr) -> Optional[dict]:
         if not self.recognizer_ok:
             return None
-        out = infer.get_recognizer().predict(crop_bgr)
+        # OpenCV frames are BGR; the recognizer expects RGB (its grayscale
+        # weights differ per channel, which matters for blue or red ink)
+        out = infer.get_recognizer().predict(np.ascontiguousarray(crop_bgr[..., ::-1]))
         formula = normalize_ocr(out["raw"])
+        describe = None
+        if formula:
+            describe = describe_formula(formula)
+            describe["geometry"] = molecule_geometry(describe["formula"]) if describe["valid"] else None
         return {
             "raw": out["raw"],
             "formula": formula,
             "confidence": out["confidence"],
-            "describe": describe_formula(formula) if formula else None,
+            "describe": describe,
         }
 
     def react(self, reactants):
@@ -90,8 +98,10 @@ def process_to_state(session: ARApp, frame) -> dict:
         tracks.append({
             "x": int(x), "y": int(y), "w": int(bw), "h": int(bh),
             "label": (t.pretty or t.formula) if t.formula else None,
+            "formula": t.formula,
             "confidence": round(float(t.confidence), 2) if t.formula else None,
             "confirmed": t.formula is not None,
+            "geometry": molecule_geometry(t.formula) if t.formula else None,
         })
 
     reaction = None
@@ -99,6 +109,9 @@ def process_to_state(session: ARApp, frame) -> dict:
         reaction = {
             "equation": session.reaction["equation"],
             "ascii": to_ascii(session.reaction["equation"]),
+            "reactants": session.reaction.get("reactants"),
+            "products": session.reaction.get("products"),
+            "geometry": session.reaction.get("geometry"),
             "name": session.reaction.get("name"),
             "conditions": session.reaction.get("conditions"),
         }

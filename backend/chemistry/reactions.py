@@ -12,9 +12,14 @@ import json
 import os
 from typing import Optional
 
-from .formula import normalize_ocr, parse_formula
+from .formula import canonical_formula, normalize_ocr, parse_formula
 
 _DATA = os.path.join(os.path.dirname(__file__), "data", "reactions.json")
+
+
+def _norm(formula: str) -> str:
+    """Clean OCR output, then map alternative spellings (C2H6O) to the main one."""
+    return canonical_formula(normalize_ocr(formula))
 
 
 def _load_table() -> dict:
@@ -23,7 +28,9 @@ def _load_table() -> dict:
     table = {}
     for entry in data.get("reactions", []):
         # normalize keys so "H20" written by hand still matches "H2O"
-        key = frozenset(normalize_ocr(r) for r in entry["reactants"])
+        key = frozenset(_norm(r) for r in entry["reactants"])
+        if key in table:
+            raise ValueError(f"reactions.json lists {sorted(key)} twice")
         table[key] = entry
     return table
 
@@ -35,7 +42,8 @@ def _is_hydrocarbon(counts: Optional[dict]) -> bool:
     """True for C/H or C/H/O molecules (things that burn to CO2 + H2O)."""
     if not counts:
         return False
-    return set(counts).issubset({"C", "H", "O"}) and "C" in counts and "H" in counts
+    return (set(counts).issubset({"C", "H", "O"}) and "C" in counts and "H" in counts
+            and 4 * counts["C"] + counts["H"] - 2 * counts.get("O", 0) > 0)
 
 
 def find_reaction(reactants: list[str]) -> Optional[dict]:
@@ -44,8 +52,8 @@ def find_reaction(reactants: list[str]) -> Optional[dict]:
     The record always carries normalized ``reactants`` and a ``products`` list;
     database hits also include ``name``/``conditions``/``note``.
     """
-    norm = [normalize_ocr(r) for r in reactants if r]
-    norm = [r for r in norm if r]
+    norm = [_norm(r) for r in reactants if r]
+    norm = list(dict.fromkeys(r for r in norm if r))
     if not norm:
         return None
 
@@ -59,7 +67,8 @@ def find_reaction(reactants: list[str]) -> Optional[dict]:
     # --- rule: generic hydrocarbon combustion --------------------------------
     if len(norm) == 2 and "O2" in norm:
         other = next(r for r in norm if r != "O2")
-        if _is_hydrocarbon(parse_formula(other)):
+        counts = parse_formula(other)
+        if _is_hydrocarbon(counts):
             return {
                 "reactants": norm,
                 "products": ["CO2", "H2O"],

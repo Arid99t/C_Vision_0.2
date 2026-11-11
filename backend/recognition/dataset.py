@@ -1,19 +1,26 @@
-"""Datasets + collation for CTC training.
+"""Datasets + collation helpers.
 
-`SyntheticDataset` generates augmented formula images on the fly (infinite in
-practice; we expose a nominal length so DataLoader can iterate epochs).
-`FolderDataset` loads real labeled images so you can fine-tune on collected
-handwriting. `collate_fn` pads a batch to equal width and packs CTC targets.
+`FolderDataset` loads real labeled handwriting (collected with
+clients/desktop/capture.py) through the SAME preparation the mobile recognizer
+uses at inference (preprocess.prepare_crop), optionally re-augmented on every
+access. train.py mixes these samples into its batches when you pass
+--real-dir / --real-labels.
+
+`SyntheticDataset` and `collate_fn` are the original on-the-fly v1 pipeline for
+the legacy CRNN; the mobile recognizer trains from a pre-generated set instead
+(see gen_data.py).
 """
 from __future__ import annotations
 
 import os
+import random
+
 import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-from . import synth
+from . import preprocess, synth
 from .charset import encode
 from .config import IMG_HEIGHT
 
@@ -21,8 +28,8 @@ from .config import IMG_HEIGHT
 def to_tensor(arr_uint8: np.ndarray) -> torch.Tensor:
     """(H, W) uint8 -> (1, H, W) float tensor normalized to roughly [-1, 1].
 
-    The SAME normalization is used at inference time (see infer.py), so keep
-    these in sync if you change it.
+    The SAME normalization is used at inference time (preprocess.to_model_input),
+    so keep these in sync if you change it.
     """
     x = arr_uint8.astype(np.float32) / 255.0
     x = (x - 0.5) / 0.5
@@ -30,6 +37,9 @@ def to_tensor(arr_uint8: np.ndarray) -> torch.Tensor:
 
 
 class SyntheticDataset(Dataset):
+    """Legacy v1 samples (fonts on a clean page) for the original CRNN, passed
+    through the v1 crop cleanup that the CRNN's inference path applies."""
+
     def __init__(self, length: int = 50000):
         self.length = length
 
@@ -37,23 +47,25 @@ class SyntheticDataset(Dataset):
         return self.length
 
     def __getitem__(self, idx):
-        arr, label = synth.make_sample()
+        arr, label = synth.make_sample(clean=True)
         return to_tensor(arr), torch.tensor(encode(label), dtype=torch.long), label
 
 
 class FolderDataset(Dataset):
     """Real labeled data. `labels_file` is lines of: <filename>\\t<label>.
 
-    With ``augment=True`` each access applies the same synthetic augmentation
-    (rotation, shear, stroke thickness, noise, blur) to the real image, so a
-    small hand-collected set (~30 photos) yields lots of varied training views
-    and the model doesn't just memorize those exact crops.
+    With ``augment=True`` each access lightly "re-photographs" the real image
+    (tilt, zoom, lighting, blur, noise), so a small hand-collected set (~30
+    photos) yields lots of varied training views and the model doesn't just
+    memorize those exact crops.
     """
 
     def __init__(self, image_dir: str, labels_file: str, augment: bool = True):
         self.image_dir = image_dir
         self.augment = augment
         self.items: list[tuple[str, str]] = []
+        self._rng = random.Random(0)
+        self._nprng = np.random.default_rng(0)
         with open(labels_file, encoding="utf-8") as f:
             for line in f:
                 line = line.rstrip("\n")
@@ -67,10 +79,11 @@ class FolderDataset(Dataset):
 
     def __getitem__(self, idx):
         fname, label = self.items[idx]
-        img = Image.open(os.path.join(self.image_dir, fname)).convert("L")
+        img = np.asarray(Image.open(os.path.join(self.image_dir, fname)).convert("L"))
         if self.augment:
-            img = synth._augment(img)
-        arr = synth.to_fixed_height(img, IMG_HEIGHT)
+            from . import synthv2          # needs OpenCV; only when augmenting
+            img = synthv2.augment_photo(img, self._rng, self._nprng)
+        arr = preprocess.prepare_crop(img)  # same preparation as inference
         return to_tensor(arr), torch.tensor(encode(label), dtype=torch.long), label
 
 
