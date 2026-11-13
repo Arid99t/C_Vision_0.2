@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">C Vision Assist</string>
+    <string name="retry">Retry</string>
+    <string name="app_settings">Android app settings</string>
+</resources>

@@ -1,0 +1,38 @@
+{
+ "arch": "BandReader",
+ "params": 259573,
+ "input": {
+  "height": 48,
+  "width": 160,
+  "channels": "RGB",
+  "normalize": "x / 127.5 - 1"
+ },
+ "output": "log-probabilities, shape (40, 1, 13): time step, batch, class",
+ "classes": [
+  "<blank>",
+  "black",
+  "brown",
+  "red",
+  "orange",
+  "yellow",
+  "green",
+  "blue",
+  "violet",
+  "grey",
+  "white",
+  "gold",
+  "silver"
+ ],
+ "trained_on": "drawn pictures plus re-photographed real photos (backend/resistor/render.py)",
+ "validation": {
+  "exact": 0.8396,
+  "value": 0.8181197359435466,
+  "quiet": 0.9950576606260296,
+  "real_test_value": 0.9047619047619048,
+  "real_test_views": 42
+ },
+ "epoch": 8,
+ "onnx_max_abs_diff": 4.482269287109375e-05,
+ "file": "resistor.onnx",
+ "exported": "2026-11-13 19:07:32"
+}

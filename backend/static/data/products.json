@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "about": "Local product list for the Assist app's Safety mode: barcode (EAN-13 or UPC-A digits) -> what the product is. 'subs' are substance ids from safety.json. This list works with no internet. Add the items in your own lab, canteen or first-aid box; for things without a barcode, print your own: codes beginning 200 to 299 are reserved for in-house use and will never clash with a shop product. The two entries below are examples of such in-house labels. Products not listed here are only looked up online (Open Food Facts) if the user switches 'Online lookup' on.",
+  "products": {
+    "2000000000015": { "name": "Lab bleach (in-house label)", "subs": ["bleach"] },
+    "2000000000022": { "name": "Lab ammonia solution (in-house label)", "subs": ["ammonia"] }
+  }
+}

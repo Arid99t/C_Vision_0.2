@@ -25,6 +25,9 @@ work/
 backend/static/vendor/ort/
 backend/static/models/objects*
 backend/static/test/
+# Assist app: pretrained text and speech models   python tools/fetch_assist_models.py
+# (The small resistor reader, backend/static/models/resistor.*, IS kept: it is trained here.)
+backend/static/models/assist/
 
 .claude
 
@@ -33,3 +36,11 @@ _*.png
 _*.log
 training.log
 .DS_Store
+
+# Android build outputs and local SDK configuration
+dist/
+clients/glasses/android/.gradle/
+clients/glasses/android/**/build/
+clients/glasses/android/local.properties
+*.jks
+*.keystore

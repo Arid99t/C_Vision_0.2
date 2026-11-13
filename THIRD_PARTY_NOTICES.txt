@@ -22,6 +22,58 @@ Optional YOLOE / Ultralytics object models
   Git does not remove licence obligations when using or distributing them.
   Review the upstream terms before publishing an application incorporating them.
 
+Assist app: printed-text reader (downloaded by tools/fetch_assist_models.py)
+  PP-OCRv3 English text detector and recognizer, PaddlePaddle Authors; Apache-2.0.
+  https://github.com/PaddlePaddle/PaddleOCR
+  ONNX conversions published by the RapidOCR project (Apache-2.0):
+  https://huggingface.co/SWHL/RapidOCR
+  Model binaries are downloaded locally and excluded from Git.
+
+  Complete upstream licences bundled with the Android APK:
+  backend/static/licenses/PaddleOCR.LICENSE.txt
+  backend/static/licenses/RapidOCR.LICENSE.txt
+
+Assist app: live captions (downloaded by tools/fetch_assist_models.py)
+  Moonshine "tiny" speech-to-text model, Useful Sensors; MIT.
+  https://github.com/usefulsensors/moonshine
+  ONNX conversion published by onnx-community:
+  https://huggingface.co/onnx-community/moonshine-tiny-ONNX
+  Model binaries are downloaded locally and excluded from Git.
+
+  Full upstream licence: backend/static/licenses/Moonshine.LICENSE.txt.
+  English Tiny falls under its Section 1 (MIT); the unrelated non-English
+  Section 2 is retained verbatim. Exact source/model revisions are recorded in
+  backend/static/licenses/ASSIST_MODEL_SOURCES.txt.
+
+Android Assist wrapper
+  Uses the Android platform WebView and text-to-speech APIs, without bundled
+  AndroidX or native model libraries. The APK includes the text/speech models,
+  original formula/resistor models, ONNX Runtime Web, and the complete licence
+  texts noted above. Optional Ultralytics weights and training data are absent.
+  Gradle 9.1.0 (Apache-2.0) and Android Gradle Plugin 9.0.1 (Apache-2.0) are
+  build tools; JUnit 4.13.2 (EPL-1.0) is a host-only test dependency. These tools
+  are not packaged in the APK. The committed Gradle wrapper retains its
+  generated licence headers. https://gradle.org/ and https://developer.android.com/build
+
+Assist app: resistor band reader (backend/static/models/resistor.onnx, trained here)
+  Trained on drawings (backend/resistor/render.py) plus re-photographed real
+  photos from Wikimedia Commons, downloaded by tools/fetch_resistor_photos.py:
+    "<value> 5% axial resistor.jpg" series, CC BY-SA 2.0
+    "Metal film resistor.jpg", CC BY-SA 3.0 (testing only)
+  Those photos are not included in this repository; the script writes an
+  ATTRIBUTION.txt with each author next to the downloaded copies.
+  Backgrounds for training pictures are blurred crops of COCO val2017 images
+  (https://cocodataset.org, individual Flickr licences); not included here.
+  tests/fixtures/resistors/ holds crops of two Commons photos that may be
+  redistributed freely: "Electronic-Axial-Lead-Resistors-Array.jpg" (public
+  domain) and "Resistor metal film 0.5W 1% 82R.jpg" (CC0).
+
+Assist app: safety and parts lists (backend/static/data/safety.json, parts.json)
+  Written for this project from general, widely published safety guidance and
+  manufacturer datasheets; each safety rule names the kind of source it rests
+  on. They are short curated lists, not authoritative references: have a
+  qualified person review them before classroom use.
+
 Formula recognizer training inputs
   EMNIST: https://www.nist.gov/itl/products-and-services/emnist-dataset
   Google Fonts: fonts carry their own licences; retain those when sharing fonts.

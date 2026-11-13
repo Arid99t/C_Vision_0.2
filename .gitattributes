@@ -1,2 +1,6 @@
 # Keep third-party source intact and separate from authored code in GitHub stats.
 backend/static/vendor/** linguist-vendored -whitespace
+backend/static/licenses/*.LICENSE.txt -whitespace
+
+# The Android wrapper must remain runnable after a checkout on any platform.
+clients/glasses/android/gradlew text eol=lf

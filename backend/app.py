@@ -58,7 +58,7 @@ async def _web_app_headers(request: Request, call_next):
     # the stricter embedding policy costs nothing.
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
-    if request.url.path.startswith(("/static/", "/ar")):
+    if request.url.path.startswith(("/static/", "/ar", "/assist")):
         # always revalidate: an updated script or model shows up at once, while
         # unchanged files cost only a tiny "304 Not Modified"
         response.headers["Cache-Control"] = "no-cache"
@@ -108,7 +108,17 @@ def health():
             "objects": all(os.path.exists(os.path.join(_STATIC, "models", f"objects.{ext}"))
                            for ext in ("onnx", "json")),
         },
+        # what the Assist app (/assist) has installed
+        "assist": {
+            "text_reader": _has_models("assist/ocr_det.onnx", "assist/ocr_rec.onnx"),
+            "captions": _has_models("assist/asr_encoder.onnx", "assist/asr_decoder.onnx", "assist/asr_vocab.json"),
+            "resistor_reader": _has_models("resistor.onnx", "resistor.json"),
+        },
     }
+
+
+def _has_models(*names: str) -> bool:
+    return all(os.path.exists(os.path.join(_STATIC, "models", n)) for n in names)
 
 
 @app.post("/recognize")
@@ -180,6 +190,14 @@ def ar_page():
         return f.read()
 
 
+@app.get("/assist", response_class=HTMLResponse)
+def assist_page():
+    """The hands-free Assist app for smart glasses and phones: safety check,
+    electronics helper, captions and read-aloud. Runs on the device."""
+    with open(os.path.join(_STATIC, "assist.html"), encoding="utf-8") as f:
+        return f.read()
+
+
 @app.post("/frame")
 async def frame(image: UploadFile = File(...)):
     """Process one camera frame from the web client; return overlay boxes + reaction."""
@@ -194,4 +212,4 @@ async def frame(image: UploadFile = File(...)):
 @app.get("/")
 def root():
     return {"name": "Chem_Vision API", "docs": "/docs",
-            "health": "/health", "mobile_app": "/ar"}
+            "health": "/health", "mobile_app": "/ar", "assist_app": "/assist"}

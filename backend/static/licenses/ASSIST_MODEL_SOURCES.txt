@@ -1,0 +1,39 @@
+Assist bundled model provenance (checked 2026-11-13)
+
+The adjacent LICENSE files are complete, unmodified upstream licence texts.
+They apply to the components below, not to original Chem_Vision code.
+
+PP-OCRv3 English text detector and recognizer: PaddleOCR, Apache-2.0.
+  Licence: https://github.com/PaddlePaddle/PaddleOCR/blob/main/LICENSE
+  Git blob: 430edfa0cfcb59f15b7aa5457427d0faf2e40dac
+  Local copy: PaddleOCR.LICENSE.txt
+
+RapidOCR ONNX conversions: Apache-2.0.
+  Licence: https://github.com/RapidAI/RapidOCR/blob/main/LICENSE
+  Git blob: ab68e50ab2d0af41c9c8c30947a694a6285cde3f
+  Local copy: RapidOCR.LICENSE.txt
+  Model card and binaries:
+  https://huggingface.co/SWHL/RapidOCR/tree/1cfba2e90fc938db55889873735088de210cc173
+  This model card declares Apache-2.0. Installed files are ocr_det.onnx and
+  ocr_rec.onnx, copied without changing their contents.
+
+Moonshine Tiny English speech recognition model: Useful Sensors / Moonshine AI.
+  Licence: https://github.com/moonshine-ai/moonshine/blob/main/LICENSE
+  Git blob: 53cade1c30a4daf00dc0eebc92319027fd3f81d4
+  Local copy: Moonshine.LICENSE.txt
+  The licence preamble expressly includes English Tiny models under Section 1,
+  MIT. Section 2 is retained verbatim but concerns the listed non-English models;
+  those models are not included in this app.
+  Original model card (declares MIT, language English):
+  https://huggingface.co/UsefulSensors/moonshine-tiny/tree/390624ed33d594443aa4aa221f5b9f283b545b5a
+  ONNX conversion model card (declares MIT), tokenizer and binaries:
+  https://huggingface.co/onnx-community/moonshine-tiny-ONNX/tree/a6da1241cd305dcd64eab1edbd615f2bb9aabb95
+  Installed encoder and quantized decoder are unchanged copies of those ONNX
+  files. asr_vocab.json is a compact token table derived from tokenizer.json
+  by tools/fetch_assist_models.py; no Transformers.js/tokenizers runtime code
+  is included. The token table and all downloaded files are SHA-256 checked.
+
+ONNX Runtime Web has its complete licence in backend/static/vendor/ort.LICENSE.txt
+in the source checkout, copied to /licenses/ONNX-Runtime.LICENSE.txt in the APK.
+Training provenance for the original formula and resistor models is recorded
+in THIRD_PARTY_NOTICES.txt. This bundle contains no Ultralytics object model.
